@@ -21,6 +21,38 @@ func GetUsers(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(&users)
 }
 
+func SearchUsers(c *fiber.Ctx) error {
+	var body models.UserSearchRequest
+	if err := c.BodyParser(&body); err != nil {
+		c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	var users []models.User
+	if result := initializers.DB.Find(&users, "surname || ' ' || name || ' ' || middle_name like $1", "%"+body.Body+"%"); result.Error != nil {
+		c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": result.Error.Error(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(models.FilterUsersRecord(&users))
+}
+
+func FilterUsers(c *fiber.Ctx) error {
+	var body models.UserSearchRequest
+	if err := c.BodyParser(&body); err != nil {
+		c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	var users []models.User
+	if result := initializers.DB.Find(&users, "department = $1", body.Body); result.Error != nil {
+		c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": result.Error.Error(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(models.FilterUsersRecord(&users))
+}
+
 func GetUser(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var user models.User

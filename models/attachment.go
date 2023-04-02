@@ -10,3 +10,19 @@ type Attachment struct {
 type AttachmentRequest struct {
 	FileURL string `json:"file_url"`
 }
+
+type AttachmentResponse struct {
+	IDAttachment int    `json:"id_attachment"`
+	FileURL      string `json:"file_url"`
+}
+
+func FilterAttachmentsRecord(attachments *[]Attachment) *[]AttachmentResponse {
+	var attachmentsResponse []AttachmentResponse
+	for _, element := range *attachments {
+		var attachmentResponse AttachmentResponse
+		attachmentResponse.IDAttachment = element.IDAttachment
+		attachmentResponse.FileURL = element.FileURL
+		attachmentsResponse = append(attachmentsResponse, attachmentResponse)
+	}
+	return &attachmentsResponse
+}

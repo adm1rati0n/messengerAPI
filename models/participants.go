@@ -9,5 +9,5 @@ type Participants struct {
 }
 
 type ParticipantsRequest struct {
-	UserID int
+	UserID int `json:"user_id"`
 }

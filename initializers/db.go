@@ -26,7 +26,9 @@ func ConnectDB(config *Config) {
 	DB.Logger = logger.Default.LogMode(logger.Info)
 
 	log.Println("Running Migrations")
-	err = DB.AutoMigrate(&models.User{})
+	err = DB.AutoMigrate(&models.User{}, &models.Conversation{}, &models.Message{},
+		&models.Participants{}, &models.Dialog{}, &models.Attachment{}, &models.DeletedMessages{},
+		&models.ReadMessages{})
 	if err != nil {
 		log.Fatal("Migration Failed:  \n", err.Error())
 		os.Exit(1)

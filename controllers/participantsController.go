@@ -36,3 +36,27 @@ func GetConversationParticipants(c *fiber.Ctx) error {
 	}
 	return c.Status(fiber.StatusOK).JSON(&participants)
 }
+
+func DeleteParticipant(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	var body int
+	if err := c.BodyParser(&body); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	var participant models.User
+
+	if result := initializers.DB.First(&participant, "conversation_id = $1 and user_id = $2", id, body); result.Error != nil {
+		return fiber.NewError(fiber.StatusNotFound, result.Error.Error())
+	}
+	if result := initializers.DB.Delete(&participant); result.Error != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": result.Error.Error(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status": "success",
+	})
+}
