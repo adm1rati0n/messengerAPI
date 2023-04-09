@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 	"messengerAPI/initializers"
@@ -68,9 +69,9 @@ func SignUpUser(c *fiber.Ctx) error {
 
 func SignInUser(c *fiber.Ctx) error {
 	body := models.AuthRequest{}
+	fmt.Println("Метод вызван")
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"status":  "fail",
 			"message": err.Error(),
 		})
 	}

@@ -83,7 +83,10 @@ func CreateMessage(c *fiber.Ctx) error {
 	}
 	body := models.MessageRequest{}
 	if err := c.BodyParser(&body); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":        "bad request",
+			"golangError:": err.Error(),
+		})
 	}
 	var message models.Message
 	message.ConversationID = &id

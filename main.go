@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"log"
 	"messengerAPI/controllers"
 	"messengerAPI/initializers"
@@ -18,15 +19,13 @@ func init() {
 
 func main() {
 	app := fiber.New()
-	//micro := fiber.New()
-	//app.Mount("/api", micro)
-	//app.Use(logger.New())
-	//app.Use(cors.New(cors.Config{
-	//	AllowOrigins:     "http://localhost:3000",
-	//	AllowHeaders:     "Origin, Content-Type, Accept",
-	//	AllowMethods:     "GET, POST",
-	//	AllowCredentials: true,
-	//}))
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:8888, http://localhost:3000, https://c7b4-188-255-11-131.ngrok-free.app",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowMethods:     "GET, POST, PUT, DELETE",
+		AllowCredentials: true,
+	}))
 
 	messageRoutes := app.Group("/messages", middleware.DeserializeUser)
 	messageRoutes.Get("/", controllers.GetConversations)
@@ -54,7 +53,6 @@ func main() {
 	userRoutes.Get("/:id/create-dialog", controllers.CreateDialog)
 	userRoutes.Post("/search", controllers.SearchUsers)
 	userRoutes.Post("/filter", controllers.FilterUsers)
-	//routes.Delete("/:id", h.DeleteUser)
 
 	authRoutes := app.Group("/auth")
 	authRoutes.Post("/login", controllers.SignInUser)
@@ -63,7 +61,5 @@ func main() {
 
 	app.Static("/", "htdocs")
 
-	//controllers.RegisterRoutes(app, initializers.DB)
-
-	log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen("127.0.0.1:8888"))
 }
