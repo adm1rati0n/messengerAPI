@@ -18,11 +18,3 @@ type DialogHelper struct {
 	CreatorID  int
 	ReceiverID int
 }
-
-func FilterDialogRecord(dialog *Dialog, user UserResponse, message Message, attachments []Attachment, companion UserResponse) DialogResponse {
-	return DialogResponse{
-		IDDialog:    dialog.IDDialog,
-		Companion:   companion,
-		LastMessage: FilterMessageRecord(&message, user, FilterAttachmentsRecord(&attachments)),
-	}
-}

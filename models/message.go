@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"time"
 )
 
@@ -23,17 +24,19 @@ type MessageRequest struct {
 type MessageResponse struct {
 	IDMessage   int                   `json:"id_message,omitempty"`
 	Text        *string               `json:"text,omitempty"`
-	DateTime    string                `json:"date_time"`
-	Sender      UserResponse          `json:"sender"`
+	Date        string                `json:"date"`
+	Time        string                `json:"time"`
+	Sender      *UserResponse         `json:"sender"`
 	Attachments *[]AttachmentResponse `json:"attachments"`
 }
 
-func FilterMessageRecord(message *Message, user UserResponse, attachments *[]AttachmentResponse) *MessageResponse {
+func FilterMessageRecord(message *Message, user *UserResponse, attachments *[]AttachmentResponse) *MessageResponse {
 	if message.IDMessage != 0 {
 		return &MessageResponse{
 			IDMessage:   message.IDMessage,
 			Text:        message.Text,
-			DateTime:    message.DateTime.Format("02.01.2006 15:04:05"),
+			Date:        strings.Fields(message.DateTime.Format("02.01.2006 15:04"))[0],
+			Time:        strings.Fields(message.DateTime.Format("02.01.2006 15:04"))[1],
 			Sender:      user,
 			Attachments: attachments,
 		}

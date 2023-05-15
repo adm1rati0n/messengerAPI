@@ -11,6 +11,7 @@ import (
 )
 
 func SignUpUser(c *fiber.Ctx) error {
+	fmt.Println("Метод регистрации вызван")
 	body := models.SignUpRequest{}
 
 	if err := c.BodyParser(&body); err != nil {
@@ -32,7 +33,6 @@ func SignUpUser(c *fiber.Ctx) error {
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
-
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"status": "fail3", "message": err.Error()})
 	}
@@ -69,7 +69,6 @@ func SignUpUser(c *fiber.Ctx) error {
 
 func SignInUser(c *fiber.Ctx) error {
 	body := models.AuthRequest{}
-	fmt.Println("Метод вызван")
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),
@@ -79,13 +78,13 @@ func SignInUser(c *fiber.Ctx) error {
 	result := initializers.DB.First(&user, "login = ?", body.Login)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Bad credentials",
+			"error": "Неправильный логин или пароль",
 		})
 	}
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Bad credentials",
+			"error": "Неправильный логин или пароль",
 		})
 	}
 	return GenerateJWTToken(c, user)
@@ -99,18 +98,3 @@ func LogoutUser(c *fiber.Ctx) error {
 	})
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "success"})
 }
-
-//func (h handler) Login(c *fiber.Ctx) error {
-//	body := models.AuthRequest{}
-//	if err := c.BodyParser(&body); err != nil {
-//		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-//	}
-//	var user models.User
-//	result := h.DB.First(&user, "Login = $1 and Password = $2", body.Login, body.Password)
-//	if result.Error != nil {
-//		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-//			"error": "Bad credentials",
-//		})
-//	}
-//	return GenerateJWTToken(c, user)
-//}

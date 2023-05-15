@@ -20,28 +20,33 @@ func init() {
 func main() {
 	app := fiber.New()
 
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:8888, http://localhost:3000, https://c7b4-188-255-11-131.ngrok-free.app",
-		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
-		AllowMethods:     "GET, POST, PUT, DELETE",
-		AllowCredentials: true,
-	}))
+	//app.Use(cors.New(cors.Config{
+	//	AllowOrigins:     "http://localhost:8888, http://localhost:3000, https://c7b4-188-255-11-131.ngrok-free.app",
+	//	AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+	//	AllowMethods:     "GET, POST, PUT, DELETE",
+	//	AllowCredentials: true,
+	//}))
+	app.Use(cors.New())
 
-	messageRoutes := app.Group("/messages", middleware.DeserializeUser)
+	app.Post("/upload", middleware.DeserializeUser, controllers.UploadFile)
+
+	messageRoutes := app.Group("/chats", middleware.DeserializeUser)
 	messageRoutes.Get("/", controllers.GetConversations)
-	messageRoutes.Post("/add-conversation", controllers.CreateConversation)
-	messageRoutes.Get("/groups/:id", controllers.GetMessages)
-	messageRoutes.Post("/groups/:id", controllers.CreateMessage)
-	messageRoutes.Get("/:id/delete", controllers.DeleteMessage)
-	messageRoutes.Post("/:id/attach", controllers.AttachFile)
+	messageRoutes.Post("/", controllers.CreateConversation)
+	messageRoutes.Get("/:id", controllers.GetMessages)
+	messageRoutes.Post("/:id", controllers.CreateMessage)
+	messageRoutes.Get("/messages/:id/delete", controllers.DeleteMessage)
+	messageRoutes.Post("/messages/:id/attach", controllers.AttachFile)
+	messageRoutes.Post("/messages/:id/read", controllers.ReadMessage)
 	messageRoutes.Put("/:id", controllers.EditConversation)
-	messageRoutes.Get("/:id/delete-for-all", controllers.DeleteMessageForAll)
+	messageRoutes.Delete("/messages/:id/delete", controllers.DeleteMessageForAll)
 	messageRoutes.Post("/:id/participants/add", controllers.AddParticipant)
 	messageRoutes.Get("/:id/participants", controllers.GetConversationParticipants)
 	messageRoutes.Delete("/:id/participants/delete", controllers.DeleteParticipant)
-	messageRoutes.Post("/dialogs/:id", controllers.CreateDialogMessage)
-	messageRoutes.Get("/dialogs/:id", controllers.GetDialogMessages)
-	messageRoutes.Get("/dialogs/", controllers.GetDialogs)
+
+	//messageRoutes.Post("/dialogs/:id", controllers.CreateDialogMessage)
+	//messageRoutes.Get("/dialogs/:id", controllers.GetDialogMessages)
+	//messageRoutes.Get("/dialogs/", controllers.GetDialogs)
 
 	userRoutes := app.Group("/users", middleware.DeserializeUser)
 	userRoutes.Get("/", controllers.GetUsers)
@@ -50,16 +55,17 @@ func main() {
 	userRoutes.Put("/:id/change-password", controllers.ChangePassword)
 	userRoutes.Put("/:id/change-decrypt-password", controllers.ChangeDecryptPassword)
 	userRoutes.Get("/current-user", controllers.GetLoggedUser)
-	userRoutes.Get("/:id/create-dialog", controllers.CreateDialog)
 	userRoutes.Post("/search", controllers.SearchUsers)
 	userRoutes.Post("/filter", controllers.FilterUsers)
+
+	//userRoutes.Get("/:id/create-dialog", controllers.CreateDialog)
 
 	authRoutes := app.Group("/auth")
 	authRoutes.Post("/login", controllers.SignInUser)
 	authRoutes.Post("/register", controllers.SignUpUser)
 	authRoutes.Post("/logout", middleware.DeserializeUser, controllers.LogoutUser)
 
-	app.Static("/", "htdocs")
+	app.Static("/uploads", "/uploads")
 
 	log.Fatal(app.Listen("127.0.0.1:8888"))
 }

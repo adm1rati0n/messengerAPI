@@ -10,11 +10,15 @@ import (
 func AddParticipant(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Не смог считать айди чата",
+		})
 	}
 	body := models.ParticipantsRequest{}
 	if err := c.BodyParser(&body); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Не смог считать тело",
+		})
 	}
 	var participant models.Participants
 	participant.UserID = body.UserID

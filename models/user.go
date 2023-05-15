@@ -52,6 +52,23 @@ func FilterUsersRecord(users *[]User) []UserResponse {
 	return usersResponse
 }
 
+func FilterSenderRecord(sender *User) *UserResponse {
+	if sender.IDUser == 0 {
+		return nil
+	}
+	return &UserResponse{
+		IDUser:     sender.IDUser,
+		Surname:    sender.Surname,
+		Name:       sender.Name,
+		MiddleName: *sender.MiddleName,
+		//Login:      user.Login,
+		Department: sender.Department,
+		AvatarUrl:  *sender.AvatarURL,
+		IsActive:   sender.IsActive,
+		LastActive: sender.LastActive.Format("02.01.2006 15:04:05"),
+	}
+}
+
 func FilterUserRecord(user *User) UserResponse {
 	return UserResponse{
 		IDUser:     user.IDUser,
