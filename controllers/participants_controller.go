@@ -34,11 +34,18 @@ func GetConversationParticipants(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	var participants []models.Participants
-	if result := initializers.DB.Find(&participants, "conversation_id = $1", id); result.Error != nil {
-		return fiber.NewError(fiber.StatusNotFound, result.Error.Error())
+
+	var users []models.User
+	err = initializers.DB.Joins("join participants on participants.user_id = users.id_user").
+		Where("participants.conversation_id = ?", id).
+		Find(&users).Error
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error retrieving users",
+		})
 	}
-	return c.Status(fiber.StatusOK).JSON(&participants)
+
+	return c.Status(fiber.StatusOK).JSON(models.FilterUsersRecord(&users))
 }
 
 func DeleteParticipant(c *fiber.Ctx) error {

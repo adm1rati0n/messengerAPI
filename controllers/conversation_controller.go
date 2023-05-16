@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"messengerAPI/initializers"
 	"messengerAPI/models"
+	"strconv"
 )
 
 func CreateConversation(c *fiber.Ctx) error {
@@ -18,6 +19,23 @@ func CreateConversation(c *fiber.Ctx) error {
 	conversation.CreatorID = &user.IDUser
 	initializers.DB.Save(&conversation)
 	return c.Status(fiber.StatusOK).JSON(&conversation)
+}
+
+func GetAttachments(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	var attachments []models.Attachment
+	err = initializers.DB.Joins("join messages on messages.id_message = attachments.message_id").
+		Joins("join conversations on conversations.id_conversation = messages.conversation_id").
+		Where("conversations.id_conversation = ?", id).Find(&attachments).Error
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Error retrieving attachments",
+		})
+	}
+	return c.JSON(attachments)
 }
 
 func CountUnreadMessages(userID int, conversationID int) int {
@@ -68,7 +86,10 @@ func GetConversations(c *fiber.Ctx) error {
 }
 
 func EditConversation(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
 	body := models.ConversationRequest{}
 	if err := c.BodyParser(&body); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())

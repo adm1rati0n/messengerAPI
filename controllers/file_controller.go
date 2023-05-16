@@ -8,6 +8,10 @@ import (
 	"path/filepath"
 )
 
+type fileResponse struct {
+	FileName string `json:"file_name"`
+}
+
 func UploadFile(c *fiber.Ctx) error {
 
 	form, err := c.MultipartForm()
@@ -18,9 +22,10 @@ func UploadFile(c *fiber.Ctx) error {
 	}
 	files := form.File["file"]
 
-	urls := make([]string, 0, len(files))
+	var filesResponse []fileResponse
 
 	for _, file := range files {
+		var fileResponse fileResponse
 		fileBytes, err := file.Open()
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -36,7 +41,8 @@ func UploadFile(c *fiber.Ctx) error {
 			})
 		}
 		ext := filepath.Ext(file.Filename)
-		filePath := "./uploads/" + uuid.New().String() + ext
+		fileName := uuid.New().String() + ext
+		filePath := "./uploads/" + fileName
 
 		err = os.WriteFile(filePath, fileData, 0666)
 		if err != nil {
@@ -45,10 +51,9 @@ func UploadFile(c *fiber.Ctx) error {
 				"error": err.Error(),
 			})
 		}
+		fileResponse.FileName = fileName
 		fileBytes.Close()
-		urls = append(urls, "http://localhost:8888/"+filePath)
+		filesResponse = append(filesResponse, fileResponse)
 	}
-	return c.JSON(fiber.Map{
-		"urls": urls,
-	})
+	return c.Status(fiber.StatusOK).JSON(filesResponse)
 }

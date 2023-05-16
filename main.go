@@ -43,6 +43,7 @@ func main() {
 	messageRoutes.Post("/:id/participants/add", controllers.AddParticipant)
 	messageRoutes.Get("/:id/participants", controllers.GetConversationParticipants)
 	messageRoutes.Delete("/:id/participants/delete", controllers.DeleteParticipant)
+	messageRoutes.Get("/:id/attachments", controllers.GetAttachments)
 
 	//messageRoutes.Post("/dialogs/:id", controllers.CreateDialogMessage)
 	//messageRoutes.Get("/dialogs/:id", controllers.GetDialogMessages)
